@@ -1,0 +1,5 @@
+../app/src/API_uart.c:29:6:uartInit	528	static
+../app/src/API_uart.c:61:6:uartDeInit	8	static
+../app/src/API_uart.c:72:6:uartSendString	16	static
+../app/src/API_uart.c:81:6:uartSendStringSize	16	static
+../app/src/API_uart.c:90:6:uartReceiveStringSize	16	static
