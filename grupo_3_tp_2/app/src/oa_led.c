@@ -74,8 +74,6 @@ void oa_led_init(oa_led_handle_t *oa_led, oa_led_color_t led_color)
 	oa_led->port = leds[led_color].port;
 	oa_led->pin  = leds[led_color].pin;
 	oa_led->queue_h = NULL;
-	// oa_led->queue_h = xQueueCreate(QUEUE_LENGTH, sizeof(oa_led_msg_t*));
-
 }
 
 bool oa_led_send(oa_led_handle_t *oa_led, oa_led_msg_t *pmsg)
