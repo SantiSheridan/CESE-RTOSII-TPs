@@ -73,7 +73,8 @@ void oa_led_init(oa_led_handle_t *oa_led, oa_led_color_t led_color)
 	oa_led->color = led_color;
 	oa_led->port = leds[led_color].port;
 	oa_led->pin  = leds[led_color].pin;
-	oa_led->queue_h = xQueueCreate(QUEUE_LENGTH, sizeof(oa_led_msg_t*));
+	oa_led->queue_h = NULL;
+	// oa_led->queue_h = xQueueCreate(QUEUE_LENGTH, sizeof(oa_led_msg_t*));
 
 }
 
@@ -98,9 +99,12 @@ bool oa_led_send(oa_led_handle_t *oa_led, oa_led_msg_t *pmsg)
 
 void oa_led_(oa_led_handle_t *oa_led)
 {
+	if (oa_led->queue_h == NULL)
+		return;
+
 	oa_led_msg_t *pmsg;
 	
-	if (pdPASS == xQueueReceive(oa_led->queue_h, &pmsg, portMAX_DELAY)){
+	if (pdPASS == xQueueReceive(oa_led->queue_h, &pmsg, 0)){
 		LOGGER_LOG("OA_LED_TASK: MSG RECEIVED");
 
 		if (pmsg->action == LED_ACTION_GO){
@@ -115,6 +119,8 @@ void oa_led_(oa_led_handle_t *oa_led)
 		if (pmsg->callback != NULL){
 			pmsg->callback(pmsg);
 		}
+		vQueueDelete(oa_led->queue_h);
+        oa_led->queue_h = NULL;
 	}
 }
 

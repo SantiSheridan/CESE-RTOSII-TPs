@@ -51,32 +51,21 @@ void oa_ui_(void){
     pmsg->action   = LED_ACTION_GO;
     pmsg->callback = oa_led_msg_callback_;
 
-    QueueHandle_t queue_h = NULL;
-
     switch (event) {
         case BUTTON_EVENT_PULSE:
-            pmsg->time_ms =  LED_RED_TIME;
-            queue_h = led_red.queue_h;
+            pmsg->time_ms = LED_RED_TIME;
+            oa_led_send(&led_red, pmsg); 
             break;
         case BUTTON_EVENT_SHORT:
-            pmsg->time_ms =  LED_GREEN_TIME;
-            queue_h = led_green.queue_h;
+            pmsg->time_ms = LED_GREEN_TIME;
+            oa_led_send(&led_green, pmsg);
             break;
         case BUTTON_EVENT_LONG:
-            pmsg->time_ms =  LED_BLUE_TIME;
-            queue_h = led_blue.queue_h;
+            pmsg->time_ms = LED_BLUE_TIME;
+            oa_led_send(&led_blue, pmsg);
             break;
         default:
-            break;
-    }
-
-    if (queue_h != NULL) {
-        if (xQueueSend(queue_h, (void*)&pmsg, 0) != pdPASS) {
-            LOGGER_LOG("OA_UI: ERROR ENVIANDO MENSAJE A LA COLA");
             vPortFree(pmsg);
-        }
-    } else {
-        LOGGER_LOG("OA_UI: EVENTO DESCONOCIDO");
-        vPortFree(pmsg);
+            break;
     }
 }
