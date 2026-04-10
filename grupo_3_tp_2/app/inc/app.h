@@ -49,7 +49,7 @@ extern "C" {
 /********************** typedef **********************************************/
 
 /********************** external data declaration ****************************/
-extern oa_led_handle_t led_red, led_green, led_blue;
+extern TaskHandle_t task_aos_handle;
 
 /********************** external functions declaration ***********************/
 void app_init(void);

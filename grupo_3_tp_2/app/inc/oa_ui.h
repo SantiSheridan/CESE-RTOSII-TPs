@@ -21,8 +21,16 @@ extern "C" {
 #define QUEUE_ITEM_SIZE_OA_UI     (sizeof(button_event_t))
 
 /********************** typedef **********************************************/
+typedef enum {
+    UI_STATE_STANDBY,
+    UI_STATE_RED,
+    UI_STATE_GREEN,
+    UI_STATE_BLUE,
+} ui_state_t;
+
 typedef struct {
     QueueHandle_t queue_h;
+    ui_state_t state;
 } oa_ui_handle_t;
 
 /********************** external data declaration ****************************/

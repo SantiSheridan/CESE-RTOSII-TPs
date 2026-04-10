@@ -321,7 +321,7 @@ static void MX_GPIO_Init(void)
 
   /* D3-D4-D5*/
   /* PB3-PB5-PB4*/
-  GPIO_InitStruct.Pin = LED_ROJO_PIN | LED_VERDE_PIN | LED_AZUL_PIN;
+  GPIO_InitStruct.Pin = LED_RED_PIN | LED_GREEN_PIN | LED_BLUE_PIN;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

@@ -73,9 +73,9 @@ void Error_Handler(void);
 #define SWO_GPIO_Port GPIOB
 
 #define LEDs_PORT       GPIOB
-#define LED_ROJO_PIN    GPIO_PIN_3
-#define LED_VERDE_PIN   GPIO_PIN_5
-#define LED_AZUL_PIN    GPIO_PIN_4
+#define LED_RED_PIN     GPIO_PIN_3
+#define LED_GREEN_PIN   GPIO_PIN_5
+#define LED_BLUE_PIN    GPIO_PIN_4
 
 
 

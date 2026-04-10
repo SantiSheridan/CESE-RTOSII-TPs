@@ -55,11 +55,11 @@
 /********************** internal functions declaration ***********************/
 
 /********************** internal data definition *****************************/
-static const leds_t leds[LED_OA__N] = 
-{
-	{LEDs_PORT, LED_ROJO_PIN},  // LED_RED
-	{LEDs_PORT, LED_VERDE_PIN}, // LED_GREEN
-	{LEDs_PORT, LED_AZUL_PIN},  // LED_BLUE
+static oa_led_handle_t oa_leds[LED_OA__N] = {
+    /*	.color,			.port		.pin			.queue_h */
+	{	LED_RED_OA, 	LEDs_PORT, 	LED_RED_PIN, 	NULL	  },
+	{	LED_GREEN_OA,	LEDs_PORT, 	LED_GREEN_PIN, 	NULL	  },
+	{	LED_BLUE_OA, 	LEDs_PORT, 	LED_BLUE_PIN, 	NULL	  },
 };
 
 /********************** external data definition *****************************/
@@ -67,17 +67,12 @@ static const leds_t leds[LED_OA__N] =
 /********************** internal functions definition ************************/
 
 /********************** external functions definition ************************/
-
-void oa_led_init(oa_led_handle_t *oa_led, oa_led_color_t led_color)
+bool oa_led_send(oa_led_color_t oa_idx, oa_led_msg_t *pmsg)
 {
-	oa_led->color = led_color;
-	oa_led->port = leds[led_color].port;
-	oa_led->pin  = leds[led_color].pin;
-	oa_led->queue_h = NULL;
-}
+	if (oa_idx >= LED_OA__N)
+		return false;
 
-bool oa_led_send(oa_led_handle_t *oa_led, oa_led_msg_t *pmsg)
-{
+	oa_led_handle_t *oa_led = &oa_leds[oa_idx];
     if (oa_led->queue_h == NULL) {
         oa_led->queue_h = xQueueCreate(QUEUE_LENGTH, sizeof(oa_led_msg_t*));
         if (oa_led->queue_h == NULL) {
@@ -95,8 +90,13 @@ bool oa_led_send(oa_led_handle_t *oa_led, oa_led_msg_t *pmsg)
     return true;
 }
 
-void oa_led_(oa_led_handle_t *oa_led)
+void oa_led_(oa_led_color_t oa_idx)
 {
+	if (oa_idx >= LED_OA__N)
+		return;
+	 
+	oa_led_handle_t *oa_led = &oa_leds[oa_idx];
+	
 	if (oa_led->queue_h == NULL)
 		return;
 
@@ -105,10 +105,8 @@ void oa_led_(oa_led_handle_t *oa_led)
 	if (pdPASS == xQueueReceive(oa_led->queue_h, &pmsg, 0)){
 		LOGGER_LOG("OA_LED_TASK: MSG RECEIVED");
 
-		if (pmsg->action == LED_ACTION_GO){
+		if (pmsg->action == LED_ACTION_ON){
 			HAL_GPIO_WritePin(oa_led->port, oa_led->pin, GPIO_PIN_SET);
-			vTaskDelay(pdMS_TO_TICKS(pmsg->time_ms));
-			HAL_GPIO_WritePin(oa_led->port, oa_led->pin, GPIO_PIN_RESET);
 		}
 		else if (pmsg->action == LED_ACTION_OFF){
 			HAL_GPIO_WritePin(oa_led->port, oa_led->pin, GPIO_PIN_RESET);
@@ -117,6 +115,14 @@ void oa_led_(oa_led_handle_t *oa_led)
 		if (pmsg->callback != NULL){
 			pmsg->callback(pmsg);
 		}
+
+		// Genero este nuevo pmsg_extra por recomendacion, para asegurarme de procesar todos los mensajes antes de eliminar la cola. 
+		oa_led_msg_t *pmsg_extra;
+        while (xQueueReceive(oa_led->queue_h, &pmsg_extra, 0) == pdPASS) {
+            if (pmsg_extra->callback != NULL)
+                pmsg_extra->callback(pmsg_extra);
+        }
+
 		vQueueDelete(oa_led->queue_h);
         oa_led->queue_h = NULL;
 	}

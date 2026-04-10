@@ -46,6 +46,7 @@
 
 #include "task_button.h"
 #include "oa_ui.h"
+#include "app.h"
 
 /********************** macros and definitions *******************************/
 
@@ -68,6 +69,14 @@
 extern oa_ui_handle_t oa_ui_h;
 
 /********************** internal functions definition ************************/
+static void send_event_(button_event_t event)
+{
+    if (xQueueSend(oa_ui_h.queue_h, &event, 0) == pdPASS) {
+        xTaskNotifyGive(task_aos_handle);
+    } else {
+        LOGGER_LOG("TASK_BUTTON: QUEUE FULL");
+    }
+}
 
 /********************** external functions definition ************************/
 
@@ -76,11 +85,12 @@ extern oa_ui_handle_t oa_ui_h;
  * b.Corto -> 1000 y 2000 ms  --> enciende led VERDE (D4 --> CH2)
  * c.Largo -> >2000ms		      --> enciende led AZUL  (D5 --> CH4)
  * d. No presionado cualquier otro caso --> NINGUNO
+ * 
  * */
 void task_button(void* arg)
 {
 	TickType_t time_s = 0;
-	button_event_t event;
+
   	while(true) {
 		GPIO_PinState button_state = HAL_GPIO_ReadPin(BTN_PORT, BTN_PIN);
 
@@ -95,18 +105,13 @@ void task_button(void* arg)
 
 				if (time >= pdMS_TO_TICKS(BUTTON_EVENT_PULSE_TIMEOUT) && time < pdMS_TO_TICKS(BUTTON_EVENT_SHORT_TIMEOUT)){
 					LOGGER_LOG("TASK_BUTTON: SEND EVENT PULSE");
-					event = BUTTON_EVENT_PULSE;
-					xQueueSend(oa_ui_h.queue_h, &event, portMAX_DELAY);
+					send_event_(BUTTON_EVENT_PULSE);
 				} else if (time >= pdMS_TO_TICKS(BUTTON_EVENT_SHORT_TIMEOUT) && time < pdMS_TO_TICKS(BUTTON_EVENT_LONG_TIMEOUT)){
 					LOGGER_LOG("TASK_BUTTON: SEND EVENT SHORT");
-					event = BUTTON_EVENT_SHORT;
-					xQueueSend(oa_ui_h.queue_h, &event, portMAX_DELAY);
+					send_event_(BUTTON_EVENT_SHORT);
 				} else if (time >= pdMS_TO_TICKS(BUTTON_EVENT_LONG_TIMEOUT)){
 					LOGGER_LOG("TASK_BUTTON: SEND EVENT LONG");
-					event = BUTTON_EVENT_LONG;
-					xQueueSend(oa_ui_h.queue_h, &event, portMAX_DELAY);
-				} else {
-					event = BUTTON_EVENT_NONE;
+					send_event_(BUTTON_EVENT_LONG);
 				}
 			}
 		}

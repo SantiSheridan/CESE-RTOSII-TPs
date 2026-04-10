@@ -43,13 +43,7 @@ extern "C" {
 /********************** inclusions *******************************************/
 
 /********************** macros ***********************************************/
-#define QUEUE_LENGTH 	5
-#define LED_RED_TIME 	1000
-#define LED_GREEN_TIME 	1000
-#define LED_BLUE_TIME 	1000
-
-
-
+#define QUEUE_LENGTH 	1
 
 /********************** typedef **********************************************/
 typedef enum{
@@ -60,7 +54,7 @@ typedef enum{
 } oa_led_color_t;
 
 typedef enum{
-  	LED_ACTION_GO,
+  	LED_ACTION_ON,
   	LED_ACTION_OFF,
   	LED_ACTION_N,
 } oa_led_action_t;
@@ -72,26 +66,18 @@ typedef struct {
   	QueueHandle_t     queue_h;
 } oa_led_handle_t;
 
-typedef struct {
-	  GPIO_TypeDef*     port;
-    uint16_t          pin;
-} leds_t;
-
 typedef void (*oa_led_msg_callback_t)(void *pmsg);
 
 typedef struct {
   	oa_led_action_t action;
-  	uint32_t        time_ms;
 	oa_led_msg_callback_t   callback;
 } oa_led_msg_t;
 
 /********************** external data declaration ****************************/
 
 /********************** external functions declaration ***********************/
-
-void oa_led_init(oa_led_handle_t *oa_led, oa_led_color_t led_color);
-void oa_led_(oa_led_handle_t *oa_led);
-bool oa_led_send(oa_led_handle_t *oa_led, oa_led_msg_t *pmsg);
+void oa_led_(oa_led_color_t oa_idx);
+bool oa_led_send(oa_led_color_t oa_idx, oa_led_msg_t *pmsg);
 
 /********************** End of CPP guard *************************************/
 #ifdef __cplusplus

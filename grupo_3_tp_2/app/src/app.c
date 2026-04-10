@@ -45,40 +45,29 @@
 
 /********************** macros and definitions *******************************/
 
-#define QUEUE_LENGTH_       (5)
-
 /********************** internal data declaration ****************************/
 
 /********************** internal functions declaration ***********************/
 static void task_aos(void *arg)
 {
     while(true) {
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         oa_ui_();
-        oa_led_(&led_red);
-        oa_led_(&led_green);
-        oa_led_(&led_blue);
-        vTaskDelay(pdMS_TO_TICKS(10));
+        oa_led_(LED_RED_OA);
+        oa_led_(LED_GREEN_OA);
+        oa_led_(LED_BLUE_OA);
     }
 }
 /********************** internal data definition *****************************/
 
 /********************** external data declaration *****************************/
+TaskHandle_t task_aos_handle = NULL;
 
-oa_led_handle_t led_red, led_green, led_blue;
 /********************** external functions definition ************************/
 void app_init(void)
 {
 	LOGGER_LOG("OA_UI: TASK STARTED");
 	oa_ui_init();
-
-	LOGGER_LOG("OA_LED_RED_TASK: TASK STARTED");
-	oa_led_init(&led_red, LED_RED_OA);
-
-	LOGGER_LOG("OA_LED_GREEN_TASK: TASK STARTED");
-	oa_led_init(&led_green,  LED_GREEN_OA);
-
-	LOGGER_LOG("OA_LED_BLUE_TASK: TASK STARTED");
-	oa_led_init(&led_blue,   LED_BLUE_OA);
 
 	BaseType_t status = xTaskCreate(task_button, "TASK_BUTTON", 128, NULL, tskIDLE_PRIORITY, NULL);
 	if (status != pdPASS) {
@@ -86,7 +75,7 @@ void app_init(void)
 	}
 	LOGGER_LOG("TASK_BUTTON: TASK STARTED");
 
-	status = xTaskCreate(task_aos, "TASK_AOS", 128, NULL, tskIDLE_PRIORITY, NULL);
+	status = xTaskCreate(task_aos, "TASK_AOS", 128, NULL, tskIDLE_PRIORITY, &task_aos_handle);
 	if (status != pdPASS) {
 		LOGGER_LOG("FAIL TASK_AOS CREATE");
 	}
