@@ -63,13 +63,6 @@ extern "C" {
         logger_log_print_(logger_msg);\
     }\
     taskEXIT_CRITICAL()
-// #else
-// #define LOGGER_LOG(...) do { \
-//     char buf[LOGGER_CONFIG_MAXLEN]; \
-//     int len = snprintf(buf, sizeof(buf), __VA_ARGS__); \
-//     uartSendStringSize((uint8_t*)buf, len); \
-//     uartSendString((uint8_t*)"\r\n"); \
-// } while(0)
 #endif
 
 #define LOGGER_INFO(...)\

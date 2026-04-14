@@ -31,8 +31,7 @@ extern "C" {
 #include <string.h>
 #include <stdio.h>
 
-// Tiempo máximo de espera para operaciones UART
-#define UART_TIMEOUT_MS 2000
+/* Macros y constantes -------------------------------------------------------*/
 
 // Tamaño máximo del buffer para enviar datos por UART
 #define UART_MSG_RX_MAX_LEN 64
@@ -49,6 +48,13 @@ bool uart_init();
  * @return true si se finalizo correctamente, false si hubo algún problema.
  */
 bool uart_deinit();
+
+/**
+ * @brief  Transmite una cadena de texto por UART4
+ * @note   Bloquea hasta obtener el mutex. Solo válido para datos terminados en '\0'.
+ * @param  pData Puntero a la cadena a transmitir.
+ */
+
 void uart_transmit_secure(uint8_t *pData);
 
 void task_uart(void *arg);

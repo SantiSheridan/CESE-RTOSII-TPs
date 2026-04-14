@@ -17,7 +17,7 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
+/********************** inclusions *******************************************/
 #include "app.h"
 #include "API_uart.h"
 #include "protocol.h"
@@ -25,36 +25,43 @@
 #include "cmsis_os.h"
 #include "logger.h"
 
-extern QueueHandle_t uart_rx_queue;
-extern SemaphoreHandle_t uart4_mutex;
+/********************** macros and definitions *******************************/
 
+/********************** internal data declaration ****************************/
+
+/********************** internal functions declaration ***********************/
+
+/********************** internal data definition *****************************/
 static UART_HandleTypeDef huart4;
 static uint8_t byte_rx;
 static char buffer_rx[UART_MSG_RX_MAX_LEN] = {0};
-
 ProtocolParser_t protocol_parser;
 
+/********************** external data declaration ****************************/
+extern QueueHandle_t uart_rx_queue;
+extern SemaphoreHandle_t uart4_mutex;
+
+/********************** external functions definition ************************/
 bool uart_init(void)
 {
-    huart4.Instance = UART4;
-    huart4.Init.BaudRate = 115200;
-    huart4.Init.WordLength = UART_WORDLENGTH_8B;
-    huart4.Init.StopBits = UART_STOPBITS_1;
-    huart4.Init.Parity = UART_PARITY_NONE;
-    huart4.Init.Mode = UART_MODE_TX_RX;
-    huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart4.Instance = UART4;
+  huart4.Init.BaudRate = 115200;
+  huart4.Init.WordLength = UART_WORDLENGTH_8B;
+  huart4.Init.StopBits = UART_STOPBITS_1;
+  huart4.Init.Parity = UART_PARITY_NONE;
+  huart4.Init.Mode = UART_MODE_TX_RX;
+  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
 
-    // Si la inicialización de la UART falla, retorna false.
-    if (HAL_UART_Init(&huart4) != HAL_OK)
-    	return false;
+  // Si la inicialización de la UART falla, retorna false.
+  if (HAL_UART_Init(&huart4) != HAL_OK)
+    return false;
 
-    HAL_UART_MspInit(&huart4);
-    HAL_NVIC_SetPriority(UART4_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(UART4_IRQn);
+  HAL_NVIC_SetPriority(UART4_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(UART4_IRQn);
 
-	protocol_parser_init(&protocol_parser, buffer_rx, UART_MSG_RX_MAX_LEN);
-	HAL_UART_Receive_IT(&huart4, &byte_rx, 1);
+  protocol_parser_init(&protocol_parser, buffer_rx, UART_MSG_RX_MAX_LEN);
+  HAL_UART_Receive_IT(&huart4, &byte_rx, 1);
     return true;
 }
 
@@ -72,7 +79,7 @@ void UART4_IRQHandler(void) {
   	HAL_UART_IRQHandler(&huart4);
 }
 
-void notify_msg_response(ProtocolParser_t *protocol_parser) {
+static void notify_msg_response(ProtocolParser_t *protocol_parser) {
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	MsgRequest_t msg_request;
 

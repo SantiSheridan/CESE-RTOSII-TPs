@@ -78,7 +78,7 @@ void app_init(void)
 	}
 	LOGGER_LOG("TASK_MSG_TICK Started");
 
-	status = xTaskCreate(task_reponse, "TASK_MSG_RESPONSE", 1024, NULL, tskIDLE_PRIORITY + 2, NULL);
+	status = xTaskCreate(task_response, "TASK_MSG_RESPONSE", 1024, NULL, tskIDLE_PRIORITY + 2, NULL);
 	if (status != pdPASS) {
 		LOGGER_LOG("[ERROR] Fail to create TASK_MSG_RESPONSE\n");
 	}

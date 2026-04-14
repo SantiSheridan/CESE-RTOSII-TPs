@@ -1,3 +1,4 @@
+/********************** inclusions *******************************************/
 #include "task_msg_tick.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -6,6 +7,7 @@
 #include "protocol.h"
 #include "API_uart.h"
 
+/********************** macros and definitions *******************************/
 #define MSG_REQUEST_BUFFER_SIZE 32
 
 typedef struct {
@@ -15,8 +17,17 @@ typedef struct {
     uint32_t    count;
 } MsgBuffer_t;
 
-extern QueueHandle_t uart_rx_queue;
+/********************** macros and definitions *******************************/
+
+/********************** internal data declaration ****************************/
+
+/********************** internal functions declaration ***********************/
+
+/********************** internal data definition *****************************/
 static MsgBuffer_t msg_buffer = {0};
+/********************** external data declaration ****************************/
+extern QueueHandle_t uart_rx_queue;
+/********************** internal functions definition ************************/
 
 static uint32_t load_queue_into_buffer(void) {
     MsgRequest_t msg;
@@ -87,8 +98,8 @@ static bool pop_msg_from_buffer(MsgRequest_t *msg_out)
     return true;
 }
 
-
-void task_reponse(void *arg) {
+/********************** external functions definition ************************/
+void task_response(void *arg) {
     MsgRequest_t msg_request;
     MsgResponse_t msg_response;
     char buffer_tx[320];
@@ -114,3 +125,4 @@ void task_reponse(void *arg) {
 
     }
 }
+/********************** end of file ******************************************/
