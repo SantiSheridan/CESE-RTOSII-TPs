@@ -1,11 +1,12 @@
 /********************** inclusions *******************************************/
-#include "task_msg_tick.h"
 #include "FreeRTOS.h"
+#include "task_msg_tick.h"
 #include "task.h"
 #include "queue.h"
 #include "app.h"
 #include "protocol.h"
 #include "API_uart.h"
+#include "cmsis_os.h"
 
 /********************** macros and definitions *******************************/
 #define MSG_REQUEST_BUFFER_SIZE 32
@@ -27,6 +28,9 @@ typedef struct {
 static MsgBuffer_t msg_buffer = {0};
 /********************** external data declaration ****************************/
 extern QueueHandle_t uart_rx_queue;
+extern SemaphoreHandle_t uart4_mutex;
+extern volatile TickType_t last_tick_msg;
+
 /********************** internal functions definition ************************/
 
 static uint32_t load_queue_into_buffer(void) {
@@ -112,12 +116,20 @@ void task_response(void *arg) {
         bool status = pop_msg_from_buffer(&msg_request);
 
         if (status) {
+            TickType_t actual = xTaskGetTickCount() - last_tick_msg;
+            /* No enviar el msj si la ventana de tiempo es menor a 30 ms */
+            if (actual >= pdMS_TO_TICKS(70)) {
+                vTaskDelay(pdMS_TO_TICKS(10));
+                continue;
+            }
+            xSemaphoreTake(uart4_mutex, portMAX_DELAY);
             /* creamos el msg_response */
             msg_response_create(&msg_response, msg_request.id);
             msg_response_write(buffer_tx, &msg_response);
 
             /* Transmitimos por la UART */
             uart_transmit_secure((uint8_t*) buffer_tx);
+            xSemaphoreGive(uart4_mutex);
         }
         else {
             vTaskDelay(pdMS_TO_TICKS(10));

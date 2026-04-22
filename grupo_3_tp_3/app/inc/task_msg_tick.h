@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-
+extern volatile TickType_t last_tick_msg;
 /* Funciones públicas --------------------------------------------------------*/
 /**
  * @brief Task periódica de tick del sistema.

@@ -102,7 +102,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 void uart_transmit_secure(uint8_t *pData)
 {
-    xSemaphoreTake(uart4_mutex, portMAX_DELAY);
+    // xSemaphoreTake(uart4_mutex, portMAX_DELAY);
     HAL_UART_Transmit(&huart4, pData, strlen((char*) pData), HAL_MAX_DELAY);
-    xSemaphoreGive(uart4_mutex);
+    // xSemaphoreGive(uart4_mutex);
 }
